@@ -7,7 +7,7 @@ import re
 PHONE_BRACKET_RE = re.compile(r"\[PHONE\](?:\s*\[PHONE\])+")
 
 RAW_PHONE = re.compile(
-    r"(?:(?<=\s)|(?<=^)|(?<=: ))(0\d{7,15}|\+62\d{7,15})(?=\s|$|[.,;:!?)}\]]|‎)"
+    r"(?:(?<=\s)|(?<=^)|(?<=: ))((?:0|\+62[\s-]?)\d{7,15})(?=\s|$|[.,;:!?)}\]]|‎)"
 )
 
 ID_PREFIXES = (
@@ -197,7 +197,7 @@ def detect(line: str) -> list[str] | None:
     for m in RAW_PHONE.finditer(line):
         if is_indonesian_phone(m.group(1)):
             found.append(m.group(1))
-    for m in re.finditer(r"(0\d{2,4}[\s-]?\d{3,8}[\s-]?\d{2,8})", line):
+    for m in re.finditer(r"((?:\+62[\s-]?|0)\d{2,4}[\s-]?\d{3,8}[\s-]?\d{2,8})", line):
         c = m.group(1)
         if c not in found and is_indonesian_phone(c):
             found.append(c)
