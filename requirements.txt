@@ -1,2 +1,7 @@
 # PII Cleaner — dependencies
-# (hanya menggunakan standard library, tidak ada dependency eksternal)
+#
+# Project ini 100% menggunakan Python standard library.
+# Tidak perlu install paket tambahan — cukup jalankan:
+#   python3 clean_pii.py
+#
+# Tested on Python 3.13+
