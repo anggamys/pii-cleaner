@@ -1,7 +1,10 @@
 __pycache__
 .venv
 
-source
-result
+source*
+result*
+data*
+anotasi
 
 *.zip
+*.csv
