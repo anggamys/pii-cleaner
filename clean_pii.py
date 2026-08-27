@@ -82,7 +82,7 @@ def process_file_wa(src: str, dst: str) -> dict:
         lines = fh.readlines()
 
     out_lines = []
-    stat = {"media": 0, "enkripsi": 0, "timestamp": 0,
+    stat = {"media": 0, "enkripsi": 0, "system": 0, "timestamp": 0,
             "phone": 0, "email": 0, "rekening": 0}
 
     for line in lines:
@@ -92,12 +92,14 @@ def process_file_wa(src: str, dst: str) -> dict:
         if wa_items is None:
             # Tidak ada template WA → lanjut proses PII seperti biasa
             pass
-        elif wa_items[0] in ("MEDIA", "ENKRIPSI"):
+        elif wa_items[0] in ("MEDIA", "ENKRIPSI", "SYSTEM"):
             # Baris harus dihapus seluruhnya
             if wa_items[0] == "MEDIA":
                 stat["media"] += 1
-            else:
+            elif wa_items[0] == "ENKRIPSI":
                 stat["enkripsi"] += 1
+            else:
+                stat["system"] += 1
             continue
         else:
             # TIMESTAMP — strip prefix, lanjut ke PII
@@ -142,14 +144,14 @@ def run_all(source_dir: str, output_dir: str):
         else [(f, os.path.join(source_dir, f)) for f in sorted(folders)]
     )
 
-    total = {"file": 0, "media": 0, "enkripsi": 0,
+    total = {"file": 0, "media": 0, "enkripsi": 0, "system": 0,
              "timestamp": 0, "phone": 0, "email": 0, "rekening": 0}
 
     for label, fpath in folders_to_process:
         if not os.path.isdir(fpath):
             continue
 
-        sub = {"file": 0, "media": 0, "enkripsi": 0,
+        sub = {"file": 0, "media": 0, "enkripsi": 0, "system": 0,
                "timestamp": 0, "phone": 0, "email": 0, "rekening": 0}
 
         for root, _, files in os.walk(fpath):
@@ -170,7 +172,7 @@ def run_all(source_dir: str, output_dir: str):
         if label != ".":
             print(
                 f"  {label:<35} {sub['file']:>4} file  "
-                f"media={sub['media']}  enkripsi={sub['enkripsi']}  "
+                f"media={sub['media']}  enkripsi={sub['enkripsi']}  system={sub['system']}  "
                 f"ts={sub['timestamp']}  "
                 f"phone={sub['phone']}  email={sub['email']}  rekening={sub['rekening']}"
             )
@@ -185,6 +187,7 @@ def run_all(source_dir: str, output_dir: str):
     print(f"  Baris dihapus   :")
     print(f"    Media         : {total['media']}")
     print(f"    Enkripsi      : {total['enkripsi']}")
+    print(f"    System        : {total['system']}")
     print(f"  Timestamp strip : {total['timestamp']}")
     print(f"  PII diganti     :")
     print(f"    Phone         : {total['phone']}")
