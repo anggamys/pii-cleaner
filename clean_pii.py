@@ -21,15 +21,13 @@ import os
 import shutil
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-from find_emails import detect as detect_email, replace as replace_email
-from find_phones import detect as detect_phone, replace as replace_phone
-from find_rekening import detect as detect_rekening, replace as replace_rekening
-from find_wa_template import detect as detect_wa, replace as replace_wa
-from tools import BASE_DIR, normalize_filename
-from tools import SOURCE_DIR as DEFAULT_SOURCE_DIR
-from tools import OUTPUT_DIR as DEFAULT_OUTPUT_DIR
+from lib.find_emails import detect as detect_email, replace as replace_email
+from lib.find_phones import detect as detect_phone, replace as replace_phone
+from lib.find_rekening import detect as detect_rekening, replace as replace_rekening
+from lib.find_wa_template import detect as detect_wa, replace as replace_wa
+from lib.tools import BASE_DIR, normalize_filename
+from lib.tools import SOURCE_DIR as DEFAULT_SOURCE_DIR
+from lib.tools import OUTPUT_DIR as DEFAULT_OUTPUT_DIR
 
 # ── Urutan pemrosesan ─────────────────────────────────────────────────────────
 # WA template diproses duluan karena:
