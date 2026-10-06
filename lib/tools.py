@@ -5,7 +5,6 @@ tools.py — Utility bersama: konfigurasi, rename, process_file generic.
 import os
 import re
 
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SOURCE_DIR = os.path.join(BASE_DIR, "source")
 OUTPUT_DIR = os.path.join(BASE_DIR, "result")
@@ -39,7 +38,13 @@ def build_output_path(orig_path: str) -> str:
     return os.path.join(OUTPUT_DIR, *normalized)
 
 
-def process_file(src_path: str, dst_path: str, detectors: list, mode: str = "replace", dry_run: bool = True) -> dict:
+def process_file(
+    src_path: str,
+    dst_path: str,
+    detectors: list,
+    mode: str = "replace",
+    dry_run: bool = True,
+) -> dict:
     """
     Proses satu file dengan daftar detector.
     detectors: list of (detect_fn, replace_fn)
