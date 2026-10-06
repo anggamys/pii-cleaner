@@ -1,14 +1,11 @@
-#!/usr/bin/env python3
 """
 Statistik Pseudo Label - Menghitung statistik dari folder data pseudo label CSV.
 Cara pakai:  python statistik_pseudo_label.py [--dir path/to/folder]
              atau jalankan langsung, akan meminta input folder.
 """
 
-import os
-import sys
 import argparse
-import csv
+import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -75,7 +72,10 @@ def hitung_statistik(folder_path):
         try:
             with open(csv_path, "r", encoding="utf-8-sig") as f:
                 header = next(f)
-                col_map = {h.strip().lower(): idx for idx, h in enumerate(header.strip().split(","))}
+                col_map = {
+                    h.strip().lower(): idx
+                    for idx, h in enumerate(header.strip().split(","))
+                }
 
                 file_id_idx = col_map.get("file_id", -1)
                 sent_id_idx = col_map.get("sentence_id", -1)
@@ -100,7 +100,9 @@ def hitung_statistik(folder_path):
                     if sent_id_idx >= 0 and sent_id_idx < len(cols):
                         sid = cols[sent_id_idx].strip()
                         if sid and file_id_idx >= 0 and file_id_idx < len(cols):
-                            sekolah_sentences[sekolah].add(f"{cols[file_id_idx].strip()}_{sid}")
+                            sekolah_sentences[sekolah].add(
+                                f"{cols[file_id_idx].strip()}_{sid}"
+                            )
 
                     # pos_tag_pred
                     if pos_pred_idx >= 0 and pos_pred_idx < len(cols):
@@ -117,7 +119,7 @@ def hitung_statistik(folder_path):
                             sekolah_koreksi[sekolah] += 1
                             total_koreksi += 1
 
-        except Exception as e:
+        except (OSError, UnicodeError, StopIteration) as e:
             print(f"⚠️  Gagal membaca {filename}: {e}")
 
     return {
@@ -158,7 +160,9 @@ def tampilkan_statistik(stats):
     print(f"  {'Folder':32s}: {stats['folder']}")
     print(f"  {'Total file CSV':32s}: {format_angka(stats['total_file'])} file")
     print(f"  {'Total baris data (token)':32s}: {format_angka(total)} baris")
-    print(f"  {'Total unik file_id (chat)':32s}: {format_angka(stats['total_unik_file_id'])} chat")
+    print(
+        f"  {'Total unik file_id (chat)':32s}: {format_angka(stats['total_unik_file_id'])} chat"
+    )
     print(f"  {'Total ukuran folder':32s}: ", end="")
     # hitung ukuran folder
     folder_path = stats["folder"]
@@ -175,9 +179,15 @@ def tampilkan_statistik(stats):
     # ── STATUS KOREKSI ──
     print("\n✅  STATUS KOREKSI POS TAG")
     print("-" * 65)
-    print(f"  {'Memiliki pos_tag_koreksi':32s}: {format_angka(total_koreksi):>12} token  ({pct_koreksi:.2f}%)")
-    print(f"  {'Belum dikoreksi (kosong)':32s}: {format_angka(total - total_koreksi):>12} token  ({100 - pct_koreksi:.2f}%)")
-    print(f"  {'Memiliki pos_tag_pred':32s}: {format_angka(stats['total_pred']):>12} token")
+    print(
+        f"  {'Memiliki pos_tag_koreksi':32s}: {format_angka(total_koreksi):>12} token  ({pct_koreksi:.2f}%)"
+    )
+    print(
+        f"  {'Belum dikoreksi (kosong)':32s}: {format_angka(total - total_koreksi):>12} token  ({100 - pct_koreksi:.2f}%)"
+    )
+    print(
+        f"  {'Memiliki pos_tag_pred':32s}: {format_angka(stats['total_pred']):>12} token"
+    )
 
     # ── DISTRIBUSI PER SEKOLAH ──
     print("\n🏫  DISTRIBUSI PER SEKOLAH / INSTITUSI")
@@ -190,13 +200,17 @@ def tampilkan_statistik(stats):
         fcount = stats["sekolah_files"].get(nama, 0)
         sents = stats["sekolah_sentences"].get(nama, 0)
         pct = (rows / total * 100) if total > 0 else 0
-        print(f"  {nama:30s} {fcount:>5d} {format_angka(rows):>13s} {pct:>6.1f}% {format_angka(sents):>9s}")
+        print(
+            f"  {nama:30s} {fcount:>5d} {format_angka(rows):>13s} {pct:>6.1f}% {format_angka(sents):>9s}"
+        )
 
     print(f"  {'─' * 29} {'─' * 5} {'─' * 13} {'─' * 6} {'─' * 9}")
-    print(f"  {'TOTAL':30s} {stats['total_file']:>5d} {format_angka(total):>13s} {'100.0%':>6s} {'':>9s}")
+    print(
+        f"  {'TOTAL':30s} {stats['total_file']:>5d} {format_angka(total):>13s} {'100.0%':>6s} {'':>9s}"
+    )
 
     # Koreksi per sekolah
-    print(f"\n  ✏️  Koreksi per sekolah:")
+    print("\n  ✏️  Koreksi per sekolah:")
     for nama in sorted(stats["sekolah_koreksi"].keys()):
         k = stats["sekolah_koreksi"].get(nama, 0)
         r = stats["sekolah_rows"].get(nama, 0)
@@ -204,7 +218,7 @@ def tampilkan_statistik(stats):
         print(f"     {nama:30s}: {format_angka(k):>10s} token dikoreksi ({p:.1f}%)")
 
     # ── TOP POS TAG PREDIKSI ──
-    print(f"\n🔮  TOP 20 POS TAG PREDIKSI (pos_tag_pred)")
+    print("\n🔮  TOP 20 POS TAG PREDIKSI (pos_tag_pred)")
     print("-" * 65)
     print(f"  {'POS Tag':25s} {'Jumlah':>14s} {'%':>8s}")
     print(f"  {'─' * 24} {'─' * 13} {'─' * 7}")
@@ -213,7 +227,7 @@ def tampilkan_statistik(stats):
         print(f"  {tag:25s} {format_angka(count):>13s} {pct:>6.2f}%")
 
     # ── TOP POS TAG KOREKSI ──
-    print(f"\n✅  TOP 20 POS TAG KOREKSI (pos_tag_koreksi)")
+    print("\n✅  TOP 20 POS TAG KOREKSI (pos_tag_koreksi)")
     print("-" * 65)
     if stats["pos_koreksi"]:
         print(f"  {'POS Tag':25s} {'Jumlah':>14s} {'%':>8s}")
@@ -228,11 +242,19 @@ def tampilkan_statistik(stats):
     print("\n💡  INSIGHT CEPAT")
     print("-" * 65)
     chat_terbanyak = max(sekolah_list, key=lambda x: x[1])[0] if sekolah_list else "-"
-    print(f"  • Dataset: {format_angka(total)} token dari {stats['total_file']} file chat")
-    print(f"  • Rata-rata token per chat: ~{total // max(stats['total_unik_file_id'], 1):,}".replace(",", "."))
+    print(
+        f"  • Dataset: {format_angka(total)} token dari {stats['total_file']} file chat"
+    )
+    print(
+        f"  • Rata-rata token per chat: ~{total // max(stats['total_unik_file_id'], 1):,}".replace(
+            ",", "."
+        )
+    )
     print(f"  • Koreksi masih minim: hanya {pct_koreksi:.1f}% token sudah dikoreksi")
     print(f"  • Kontributor terbesar: {chat_terbanyak}")
-    print(f"  • {format_angka(total - total_koreksi)} token ({100-pct_koreksi:.1f}%) menunggu koreksi")
+    print(
+        f"  • {format_angka(total - total_koreksi)} token ({100 - pct_koreksi:.1f}%) menunggu koreksi"
+    )
 
     print("\n" + "=" * 65)
     print("   Selesai ✅")
@@ -251,19 +273,22 @@ Contoh:
         """,
     )
     parser.add_argument(
-        "--dir", "-d",
+        "--dir",
+        "-d",
         type=str,
         default=None,
         help="Path ke folder yang berisi file CSV pseudo label (default: prompt input)",
     )
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         type=str,
         default=None,
         help="Simpan output ke file teks (opsional)",
     )
     parser.add_argument(
-        "--top", "-t",
+        "--top",
+        "-t",
         type=int,
         default=20,
         help="Jumlah top POS tag yang ditampilkan (default: 20)",
@@ -286,6 +311,7 @@ Contoh:
     if args.output:
         # Redirect stdout ke file
         import io
+
         old_stdout = sys.stdout
         sys.stdout = io.StringIO()
         tampilkan_statistik(stats)

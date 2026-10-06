@@ -1,6 +1,8 @@
-import os
 import glob
+import os
+
 import pandas as pd
+
 
 def analyze_all_csv(folder_path):
     print("Menganalisis file CSV...")
@@ -15,16 +17,22 @@ def analyze_all_csv(folder_path):
     for filepath in csv_files:
         try:
             # Baca CSV, hanya kolom yang dibutuhkan agar hemat memori
-            df = pd.read_csv(filepath, usecols=['sentence_id'])
+            df = pd.read_csv(filepath, usecols=["sentence_id"])
 
             tokens_in_file = len(df)
-            sentences_in_file = df['sentence_id'].nunique()
+            sentences_in_file = df["sentence_id"].nunique()
 
             grand_total_tokens += tokens_in_file
             grand_total_sentences += sentences_in_file
             total_files += 1
 
-        except Exception as e:
+        except (
+            OSError,
+            UnicodeError,
+            ValueError,
+            pd.errors.EmptyDataError,
+            pd.errors.ParserError,
+        ) as e:
             # Jika file kosong atau korup
             print(f"Error baca {os.path.basename(filepath)}: {e}")
 
@@ -34,7 +42,10 @@ def analyze_all_csv(folder_path):
     print(f"Total Token     : {grand_total_tokens:,}")
 
     if grand_total_sentences > 0:
-        print(f"Rata-rata token / kalimat : {grand_total_tokens/grand_total_sentences:.2f}")
+        print(
+            f"Rata-rata token / kalimat : {grand_total_tokens / grand_total_sentences:.2f}"
+        )
+
 
 if __name__ == "__main__":
     folder_path = "data_pseudo_label"

@@ -21,13 +21,17 @@ import os
 import shutil
 import sys
 
-from lib.find_emails import detect as detect_email, replace as replace_email
-from lib.find_phones import detect as detect_phone, replace as replace_phone
-from lib.find_rekening import detect as detect_rekening, replace as replace_rekening
-from lib.find_wa_template import detect as detect_wa, replace as replace_wa
+from lib.find_emails import detect as detect_email
+from lib.find_emails import replace as replace_email
+from lib.find_phones import detect as detect_phone
+from lib.find_phones import replace as replace_phone
+from lib.find_rekening import detect as detect_rekening
+from lib.find_rekening import replace as replace_rekening
+from lib.find_wa_template import detect as detect_wa
+from lib.find_wa_template import replace as replace_wa
 from lib.tools import BASE_DIR, normalize_filename
-from lib.tools import SOURCE_DIR as DEFAULT_SOURCE_DIR
 from lib.tools import OUTPUT_DIR as DEFAULT_OUTPUT_DIR
+from lib.tools import SOURCE_DIR as DEFAULT_SOURCE_DIR
 
 # ── Urutan pemrosesan ─────────────────────────────────────────────────────────
 # WA template diproses duluan karena:
@@ -35,13 +39,14 @@ from lib.tools import OUTPUT_DIR as DEFAULT_OUTPUT_DIR
 #   - timestamp di-strip dulu agar regex PII tidak terganggu prefix tanggal
 
 PII_STEPS = [
-    (detect_phone,    replace_phone),
-    (detect_email,    replace_email),
+    (detect_phone, replace_phone),
+    (detect_email, replace_email),
     (detect_rekening, replace_rekening),
 ]
 
 
 # ── Path resolution ───────────────────────────────────────────────────────────
+
 
 def resolve_paths(arg_path: str | None):
     if not arg_path:
@@ -67,12 +72,14 @@ def resolve_paths(arg_path: str | None):
 
 def get_folders(source_dir: str) -> list[str]:
     return [
-        d for d in os.listdir(source_dir)
+        d
+        for d in os.listdir(source_dir)
         if os.path.isdir(os.path.join(source_dir, d)) and not d.startswith(".")
     ]
 
 
 # ── Core processing ───────────────────────────────────────────────────────────
+
 
 def process_file_wa(src: str, dst: str) -> dict:
     """Proses satu file: strip template WA lalu ganti PII."""
@@ -80,8 +87,15 @@ def process_file_wa(src: str, dst: str) -> dict:
         lines = fh.readlines()
 
     out_lines = []
-    stat = {"media": 0, "enkripsi": 0, "system": 0, "timestamp": 0,
-            "phone": 0, "email": 0, "rekening": 0}
+    stat = {
+        "media": 0,
+        "enkripsi": 0,
+        "system": 0,
+        "timestamp": 0,
+        "phone": 0,
+        "email": 0,
+        "rekening": 0,
+    }
 
     for line in lines:
         # Step 1: WA template
@@ -127,6 +141,7 @@ def process_file_wa(src: str, dst: str) -> dict:
 
 # ── Main runner ───────────────────────────────────────────────────────────────
 
+
 def run_all(source_dir: str, output_dir: str):
     folders = get_folders(source_dir)
 
@@ -138,19 +153,36 @@ def run_all(source_dir: str, output_dir: str):
     print()
 
     folders_to_process = (
-        [(".", source_dir)] if not folders
+        [(".", source_dir)]
+        if not folders
         else [(f, os.path.join(source_dir, f)) for f in sorted(folders)]
     )
 
-    total = {"file": 0, "media": 0, "enkripsi": 0, "system": 0,
-             "timestamp": 0, "phone": 0, "email": 0, "rekening": 0}
+    total = {
+        "file": 0,
+        "media": 0,
+        "enkripsi": 0,
+        "system": 0,
+        "timestamp": 0,
+        "phone": 0,
+        "email": 0,
+        "rekening": 0,
+    }
 
     for label, fpath in folders_to_process:
         if not os.path.isdir(fpath):
             continue
 
-        sub = {"file": 0, "media": 0, "enkripsi": 0, "system": 0,
-               "timestamp": 0, "phone": 0, "email": 0, "rekening": 0}
+        sub = {
+            "file": 0,
+            "media": 0,
+            "enkripsi": 0,
+            "system": 0,
+            "timestamp": 0,
+            "phone": 0,
+            "email": 0,
+            "rekening": 0,
+        }
 
         for root, _, files in os.walk(fpath):
             for fname in files:
@@ -182,12 +214,12 @@ def run_all(source_dir: str, output_dir: str):
     print()
     print("  Selesai!")
     print(f"  File diproses   : {total['file']}")
-    print(f"  Baris dihapus   :")
+    print("  Baris dihapus   :")
     print(f"    Media         : {total['media']}")
     print(f"    Enkripsi      : {total['enkripsi']}")
     print(f"    System        : {total['system']}")
     print(f"  Timestamp strip : {total['timestamp']}")
-    print(f"  PII diganti     :")
+    print("  PII diganti     :")
     print(f"    Phone         : {total['phone']}")
     print(f"    Email         : {total['email']}")
     print(f"    Rekening      : {total['rekening']}")

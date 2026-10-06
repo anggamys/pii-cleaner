@@ -19,6 +19,7 @@ TEXT_TO_REMOVE = [
 # Akan menangkap (21/11/2025), (01/01/2014), dll.
 DATE_PATTERN = re.compile(r"\(\d{1,2}/\d{1,2}/\d{4}\)")
 
+
 def should_remove_line(line: str) -> bool:
     """Cek apakah baris ini harus dihapus."""
     line_clean = line.strip()
@@ -31,10 +32,8 @@ def should_remove_line(line: str) -> bool:
             return True
 
     # 2. Cek pattern tanggal (DD/MM/YYYY)
-    if DATE_PATTERN.search(line_clean):
-        return True
+    return bool(DATE_PATTERN.search(line_clean))
 
-    return False
 
 def process_file(src_path: str, dst_path: str):
     """Proses 1 file: hapus baris yang tidak diinginkan."""
@@ -57,6 +56,7 @@ def process_file(src_path: str, dst_path: str):
         f.writelines(output_lines)
 
     return removed_count
+
 
 def run_all():
     source_dir = "source"
@@ -90,6 +90,7 @@ def run_all():
     print(f"Total file diproses : {total_files}")
     print(f"Total baris dihapus : {total_removed}")
     print(f"Output tersimpan di : {output_dir}/")
+
 
 if __name__ == "__main__":
     run_all()
